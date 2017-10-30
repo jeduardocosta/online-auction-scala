@@ -4,6 +4,7 @@ lazy val root = (project in file("."))
     biddingApi, biddingImpl,
     userApi, userImpl,
     searchApi, searchImpl,
+    transactionApi, transactionImpl,
     webGateway)
   .settings(commonSettings: _*)
 
@@ -112,30 +113,28 @@ lazy val searchImpl = (project in file("search-impl"))
 
 lazy val transactionApi = (project in file("transaction-api"))
   .settings(commonSettings: _*)
-  .dependsOn(itemApi)
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(
       lagomScaladslApi,
       playJsonDerivedCodecs
-    ),
-    EclipseKeys.skipProject := true
+    )
   )
-  .dependsOn(security)
+  .dependsOn(security, itemApi)
 
 lazy val transactionImpl = (project in file("transaction-impl"))
   .settings(commonSettings: _*)
-  // .enablePlugins(LagomScala)
-  .dependsOn(transactionApi, biddingApi)
+  .enablePlugins(LagomScala)
+  .dependsOn(transactionApi, itemApi, biddingApi)
   .settings(
     version := "1.0-SNAPSHOT",
     libraryDependencies ++= Seq(
       lagomScaladslPersistenceCassandra,
+      lagomScaladslKafkaBroker,
       lagomScaladslTestKit,
       macwire,
       scalaTest
-    ),
-    EclipseKeys.skipProject := true
+    )
   )
 
 lazy val userApi = (project in file("user-api"))
